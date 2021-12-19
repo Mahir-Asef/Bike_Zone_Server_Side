@@ -4,6 +4,7 @@ require("dotenv").config();
 const ObjectId = require("mongodb").ObjectId;
 const app = express();
 const { MongoClient } = require("mongodb");
+const stripe = require('stripe')(process.env.STRIPE)
 const port = process.env.PORT || 5000;
 
 
@@ -111,6 +112,16 @@ async function run() {
       res.json(result);
     });
 
+    //specific payment
+
+    app.get("/bikes/:paymentId", async (req, res) => {
+      const id = req.params.paymentId;
+      console.log("payment for bike", id);
+      const query = { _id: ObjectId(id)};
+      const result = await bikeCollection.findOne(query);
+      res.json(result);
+    });
+
     // add user
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -141,6 +152,30 @@ async function run() {
           const result = await userCollection.updateOne(filter, updateDoc);
           res.json(result);
       });
+
+      app.post('/create-payment-intent', async (req, res) => {
+        const paymentInfo = req.body;
+        const amount = paymentInfo.price * 100;
+        const paymentIntent = await stripe.paymentIntents.create({
+            currency: 'usd',
+            amount: amount,
+            payment_method_types: ['card']
+        });
+        res.json({ clientSecret: paymentIntent.client_secret })
+    })
+
+    app.put('/cart/:id', async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+          $set: {
+              payment: payment
+          }
+      };
+      const result = await cartCollection.updateOne(filter, updateDoc);
+      res.json(result);
+  })
 
       // get email from users
       app.get("/users/:email", async (req, res) => {
