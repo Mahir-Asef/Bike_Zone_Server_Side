@@ -9,6 +9,7 @@ const port = process.env.PORT || 5000;
 
 
 //middleware
+
 app.use(cors());
 app.use(express.json());
 
@@ -123,6 +124,7 @@ async function run() {
     });
 
     // add user
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await userCollection.insertOne(user);
@@ -130,6 +132,7 @@ async function run() {
     });
 
     // searching unique email
+
     app.put("/users", async (req, res) => {
       const user = req.body;
       const filter = { email: user.email };
@@ -144,6 +147,7 @@ async function run() {
     });
 
     // admin role 
+
     app.put("/users/admin", async (req, res) => {
       const user = req.body;
 
@@ -198,7 +202,7 @@ async function run() {
   finally {
 
     // await client.close()
-    
+
   }
 
 }
