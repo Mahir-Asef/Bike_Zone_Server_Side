@@ -146,7 +146,9 @@ async function run() {
     // admin role 
     app.put("/users/admin", async (req, res) => {
       const user = req.body;
+
       // console.log('put',user);
+
           const filter = { email: user.email };
           const updateDoc = { $set: { role: "admin" } };
           const result = await userCollection.updateOne(filter, updateDoc);
@@ -178,11 +180,14 @@ async function run() {
   })
 
       // get email from users
+
       app.get("/users/:email", async (req, res) => {
         const email = req.params.email;
         const query = { email: email };
         const user = await userCollection.findOne(query);
+
         // console.log(user);
+        
         let isAdmin = false;
         if (user?.role === "admin") {
           isAdmin = true;
